@@ -1,0 +1,23 @@
+{
+  "name": "suber",
+  "version": "1.0.0",
+  "description": "A subscription tracker backend application",
+  "license": "ISC",
+  "author": "ak",
+  "type": "module",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "eslint": "^9.39.2",
+    "globals": "^17.0.0",
+    "nodemon": "^3.1.11"
+  }
+}

@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build/output folders
+dist/
+build/
+
+# Logs and temp files
+*.log
+*.logs
+logs/
+tmp/
+
+# Local env/config
+.env
+.env.*.local
+
+# Editor/IDE 
+.vscode/
+!.vscode/settings.json   # but wait... you have settings.json in root? see below
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+settings.json
