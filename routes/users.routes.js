@@ -2,19 +2,19 @@ import { Router } from "express";
 
 const userRouter = Router();
 
-userRouter.get("/", (req, res) => res.send({ message: "GET all users" }));
+userRouter.get("/", (req, res) => res.send({ message: "GET All Users" }));
 
 userRouter.get("/:id", (req, res) =>
-  res.send({ message: "GET specific users" })
+  res.send({ message: "GET Specific User" })
 );
 
 userRouter.post("/", (req, res) => res.send({ message: "CREATE new user" }));
 
 userRouter.put("/:id", (req, res) =>
-  res.send({ message: "UPDATES specific user details" })
+  res.send({ message: "UPDATES Specific User Details" })
 );
 userRouter.delete("/:id", (req, res) =>
-  res.send({ message: "DELETES a user" })
+  res.send({ message: "DELETES a User" })
 );
 
 export default userRouter;
