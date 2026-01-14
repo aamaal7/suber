@@ -1,14 +1,25 @@
 import Subscription from "../models/subscription.model.js";
-
+import { workflowClient } from "../config/upstash.js";
+import { SERVER_URL } from "../config/env.js";
 export const createSubscription = async (req, res, next) => {
   try {
     const subscription = await Subscription.create({
       ...req.body,
       user: req.user._id,
-      startDate: req.body.startDate ? new Date(req.body.startDate) : new Date(), // fallback to today if missing
+      startDate: req.body.startDate ? new Date(req.body.startDate) : new Date(),
     });
 
-    res.status(201).json({ success: true, data: subscription });
+    const { workflowRunId } = await workflowClient.trigger({
+      url: `${SERVER_URL}/api/v1/workflows/subscription/remainder`,
+      body: {
+        subscriptionId: subscription.id,
+      },
+      headers: {
+        "content-type": "application/json",
+      },
+      retries: 3,
+    });
+    res.status(201).json({ success: true, data: subscription, workflowRunId });
   } catch (error) {
     next(error);
   }
