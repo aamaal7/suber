@@ -1,26 +1,24 @@
 import { Router } from "express";
-
+import { adminAuth, authorize } from "../middleware/auth.middleware.js";
+import {
+  createSubscription,
+  getSubscription,
+  getSubscriptions,
+  getUserSubscriptions,
+} from "../controllers/subscription.controller.js";
 const subscriptionRouter = Router();
 
-subscriptionRouter.get("/", (req, res) => {
-  res.send({ message: "GET Subscriptions" });
-});
+subscriptionRouter.get("/", adminAuth, getSubscriptions);
 
-subscriptionRouter.get("/:id", (req, res) => {
-  res.send({ message: "GET Subscription details" });
-});
+subscriptionRouter.get("/:id", adminAuth, getSubscription);
 
-subscriptionRouter.get("/users/:id", (req, res) => {
-  res.send({ message: "GET All User Subscriptions" });
-});
+subscriptionRouter.get("/users/:id", authorize, getUserSubscriptions);
 
 subscriptionRouter.get("/upcoming-renewals", (req, res) => {
   res.send({ message: "GET Upcoming Renewals" });
 });
 
-subscriptionRouter.post("/", (req, res) => {
-  res.send({ message: "CREATE Subscription" });
-});
+subscriptionRouter.post("/", authorize, createSubscription);
 
 subscriptionRouter.put("/:id", (req, res) => {
   res.send({ message: "UPDATE Subscription" });

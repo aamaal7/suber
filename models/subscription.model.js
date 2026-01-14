@@ -25,7 +25,7 @@ const subscriptionSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      category: [
+      enum: [
         "sports",
         "entertainment",
         "music",
@@ -89,7 +89,7 @@ subscriptionSchema.pre("save", function (next) {
   if (this.renewalDate < new Date()) {
     this.status = "expired";
   }
-  next();
+  next;
 });
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
