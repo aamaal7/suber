@@ -4,6 +4,19 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET, JWT_EXPIRES_IN } from "../config/env.js";
 
+const generateToken = (userId) => {
+  const token = jwt.sign({ userId }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
+  });
+
+  const decoded = jwt.decode(token);
+
+  return {
+    token,
+    expiresAt: new Date(decoded.exp * 1000),
+  };
+};
+
 export const signUp = async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -21,23 +34,37 @@ export const signUp = async (req, res, next) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const newUsers = await User.create(
-      [{ name, email, password: hashedPassword }],
+    const newUser = await User.create(
+      [
+        {
+          name,
+          email,
+          password: hashedPassword,
+        },
+      ],
       { session }
     );
 
-    const token = jwt.sign({ userId: newUsers[0]._id }, JWT_SECRET, {
+    const token = jwt.sign({ userId: newUser[0]._id }, JWT_SECRET, {
       expiresIn: JWT_EXPIRES_IN,
     });
 
+    const decoded = jwt.decode(token);
+
+    newUser[0].token = token;
+    newUser[0].tokenExpiresAt = new Date(decoded.exp * 1000);
+
+    await newUser[0].save({ session });
+
     await session.commitTransaction();
     session.endSession();
+
     res.status(201).json({
       success: true,
       message: "User created successfully",
       data: {
         token,
-        user: newUsers[0],
+        user: newUser[0],
       },
     });
   } catch (error) {
@@ -54,22 +81,30 @@ export const signIn = async (req, res, next) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-      const error = new Error("User not found");
-      error.statusCode = 404;
-      throw error;
+      throw Object.assign(new Error("User not found"), { statusCode: 404 });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      const error = new Error("Invalid password");
-      error.statusCode = 401;
-      throw error;
+      throw Object.assign(new Error("Invalid password"), { statusCode: 401 });
     }
 
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN,
-    });
+    let token = user.token;
+
+    if (
+      !user.token ||
+      !user.tokenExpiresAt ||
+      user.tokenExpiresAt < new Date()
+    ) {
+      const generated = generateToken(user._id);
+
+      user.token = generated.token;
+      user.tokenExpiresAt = generated.expiresAt;
+      await user.save();
+
+      token = generated.token;
+    }
 
     res.status(200).json({
       success: true,
@@ -84,4 +119,9 @@ export const signIn = async (req, res, next) => {
   }
 };
 
-export const signOut = async (req, res, next) => {};
+export const signOut = (req, res) => {
+  return res.status(200).json({
+    success: true,
+    message: "User signed out successfully",
+  });
+};

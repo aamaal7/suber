@@ -22,6 +22,12 @@ const userSchema = new mongoose.Schema(
       required: [true, "User password is required"],
       minLength: 6,
     },
+    token: {
+      type: String,
+    },
+    tokenExpiresAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
