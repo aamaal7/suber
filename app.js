@@ -1,6 +1,8 @@
 import express from "express";
 import cookieParser from "cookie-parser";
+
 import { PORT } from "./config/env.js";
+import { startAutoRenew } from "./utils/autoRenew.js";
 import authRouter from "./routes/auth.routes.js";
 import userRouter from "./routes/users.routes.js";
 import subscriptionRouter from "./routes/subscription.routes.js";
@@ -30,5 +32,7 @@ app.listen(PORT, async () => {
   console.log(`Service running on port http://localhost:${PORT}`);
   await connectToDatabase();
 });
+
+startAutoRenew();
 
 export default app;
